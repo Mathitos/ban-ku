@@ -18,6 +18,7 @@ defmodule BanKu.Accounts.Account do
     account
     |> cast(attrs, [:owner_name, :balance])
     |> validate_required([:owner_name, :balance])
+    |> check_constraint(:balance, name: :balance_must_not_be_negative)
   end
 
   def get_initial_value() do
