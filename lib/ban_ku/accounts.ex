@@ -49,7 +49,9 @@ defmodule BanKu.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_account(attrs \\ %{}) do
+  def create_account(account_params \\ %{}) do
+    attrs = Map.put(account_params, "balance", Account.get_initial_value())
+
     %Account{}
     |> Account.changeset(attrs)
     |> Repo.insert()
