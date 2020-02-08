@@ -50,7 +50,7 @@ defmodule BanKu.Accounts do
 
   """
   def create_account(account_params \\ %{}) do
-    attrs = Map.put(account_params, "balance", Account.get_initial_value())
+    attrs = Map.put(account_params, :balance, Account.get_initial_value())
 
     %Account{}
     |> Account.changeset(attrs)
