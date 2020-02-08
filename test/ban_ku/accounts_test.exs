@@ -6,8 +6,11 @@ defmodule BanKu.AccountsTest do
   describe "accounts" do
     alias BanKu.Accounts.Account
 
-    @valid_attrs %{balance: 42, owner_name: "some owner_name"}
-    @update_attrs %{balance: 43, owner_name: "some updated owner_name"}
+    @owner_name_example "some owner name"
+    @owner_name_example_updated "some updated owner name"
+
+    @valid_attrs %{balance: 42, owner_name: @owner_name_example}
+    @update_attrs %{balance: 43, owner_name: @owner_name_example_updated}
     @invalid_attrs %{balance: nil, owner_name: nil}
 
     def account_fixture(attrs \\ %{}) do
@@ -29,10 +32,10 @@ defmodule BanKu.AccountsTest do
       assert Accounts.get_account!(account.id) == account
     end
 
-    test "create_account/1 with valid data creates a account" do
+    test "create_account/1 with valid data creates a account with correct balance" do
       assert {:ok, %Account{} = account} = Accounts.create_account(@valid_attrs)
-      assert account.balance == 42
-      assert account.owner_name == "some owner_name"
+      assert account.balance == Account.get_initial_value()
+      assert account.owner_name == @owner_name_example
     end
 
     test "create_account/1 with invalid data returns error changeset" do
@@ -43,7 +46,7 @@ defmodule BanKu.AccountsTest do
       account = account_fixture()
       assert {:ok, %Account{} = account} = Accounts.update_account(account, @update_attrs)
       assert account.balance == 43
-      assert account.owner_name == "some updated owner_name"
+      assert account.owner_name == @owner_name_example_updated
     end
 
     test "update_account/2 with invalid data returns error changeset" do
@@ -61,6 +64,19 @@ defmodule BanKu.AccountsTest do
     test "change_account/1 returns a account changeset" do
       account = account_fixture()
       assert %Ecto.Changeset{} = Accounts.change_account(account)
+    end
+
+    test "update_account/2 with negative balance returns error changeset" do
+      # given
+      account = account_fixture()
+      update_attrs_negative_balance = %{balance: -20_000}
+
+      # when
+      changeset_result = Accounts.update_account(account, update_attrs_negative_balance)
+
+      # should
+      assert {:error, %Ecto.Changeset{}} = changeset_result
+      assert account == Accounts.get_account!(account.id)
     end
   end
 end
