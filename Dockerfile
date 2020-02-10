@@ -40,4 +40,4 @@ USER nobody
 
 ENV HOME=/app
 
-CMD ./bin/ban_ku start
+CMD ./bin/ban_ku eval "Elixir.BanKu.Tasks.ReleaseTasks.setup()" && ./bin/ban_ku start
