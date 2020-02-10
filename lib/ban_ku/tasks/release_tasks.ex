@@ -8,7 +8,7 @@ defmodule(BanKu.Tasks.ReleaseTasks) do
   @logger_module :logger
   @otp_app :ban_ku
 
-  @seeds_file "priv/repo/seeds.exs"
+  @seeds_file "seeds.exs"
 
   alias Ecto.Adapters.Postgres
   alias Ecto.Migrator
@@ -24,9 +24,6 @@ defmodule(BanKu.Tasks.ReleaseTasks) do
 
     Logger.info("#> Starting Application Dependencies")
     start(:app_dependencies)
-
-    Logger.info("#> Creating the Database if Needed")
-    create_database()
 
     Logger.info("#> Starting Database Connection")
     start(:database_connection)
@@ -52,8 +49,6 @@ defmodule(BanKu.Tasks.ReleaseTasks) do
       Logger.info("#> Starting: #{app} - #{inspect(result)}")
     end)
   end
-
-  defp create_database, do: Postgres.storage_up(Repo.config())
 
   defp run_migrations,
     do: Migrator.run(Repo, Migrator.migrations_path(Repo), :up, all: true, log: :debug)

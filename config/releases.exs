@@ -20,7 +20,28 @@ database_url =
     For example: ecto://USER:PASS@HOST/DATABASE
     """
 
+database_name =
+  System.get_env("DATABASE_NAME") ||
+    raise """
+    environment variable DATABASE_NAME is missing.
+    """
+
+database_username =
+  System.get_env("DATABASE_USERNAME") ||
+    raise """
+    environment variable DATABASE_USERNAME is missing.
+    """
+
+database_password =
+  System.get_env("DATABASE_PASSWORD") ||
+    raise """
+    environment variable DATABASE_PASSWORD is missing.
+    """
+
 config :ban_ku, BanKu.Repo,
+  username: database_username,
+  password: database_password,
+  database: database_name,
   ssl: true,
   url: database_url,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")

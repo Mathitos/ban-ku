@@ -1,40 +1,27 @@
-# Adapted from https://hexdocs.pm/phoenix/releases.html
+ARG ALPINE_VERSION=3.9
 
-FROM elixir:1.9.0-alpine as build
+FROM elixir:1.9.0-alpine as builder
 
-# prepare build dir
 RUN mkdir /app
 WORKDIR /app
 
-# install hex + rebar
+COPY . .
+
 RUN mix local.hex --force && \
-  mix local.rebar --force
+  mix local.rebar --force && \
+  mix deps.get && \
+  mix deps.compile
 
-# set build ENV
-ENV MIX_ENV=prod
-
-# install mix dependencies
-COPY mix.exs mix.lock ./
-COPY config config
-RUN mix deps.get
-RUN mix deps.compile
-
-# build project
-COPY lib lib
 RUN mix compile
+RUN MIX_ENV=prod mix release
 
-# build release
-COPY rel rel
-RUN mix release
-
-# prepare release image
-FROM alpine:3.9 AS app
+FROM alpine:${ALPINE_VERSION} AS app
 RUN apk add --update bash openssl
 
 RUN mkdir /app
 WORKDIR /app
 
-COPY --from=build /app/_build/prod/rel/ban_ku ./
+COPY --from=builder /app/_build/prod/rel/ban_ku ./
 RUN chown -R nobody: /app
 USER nobody
 
