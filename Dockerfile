@@ -24,7 +24,7 @@ COPY lib lib
 RUN mix compile
 
 # build release
-# COPY rel rel
+COPY rel rel
 RUN mix release
 
 # prepare release image
@@ -34,8 +34,10 @@ RUN apk add --update bash openssl
 RUN mkdir /app
 WORKDIR /app
 
-COPY --from=build /app/_build/prod/rel/mathitos_bank ./
+COPY --from=build /app/_build/prod/rel/ban_ku ./
 RUN chown -R nobody: /app
 USER nobody
 
 ENV HOME=/app
+
+CMD ./bin/ban_ku start
