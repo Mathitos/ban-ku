@@ -103,4 +103,38 @@ defmodule BanKu.Accounts do
   def change_account(%Account{} = account) do
     Account.changeset(account, %{})
   end
+
+  @doc """
+  Withdraw money from an account.
+
+  ## Examples
+
+      iex> withdraw_from_account(account_id, amount)
+      {:ok, %Account{}}
+
+      iex> withdraw_from_account(account_id, invalid_amount})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def withdraw_from_account(_, amount) when amount <= 0,
+    do: {:error, :withdraw_not_allowed}
+
+  def withdraw_from_account(acount_id, amount) do
+    result =
+      Repo.transaction(fn ->
+        with account when account != nil <- Repo.get(Account, acount_id),
+             remaining_balance <- account.balance - amount,
+             account_changeset <- Account.changeset(account, %{balance: remaining_balance}),
+             true <- account_changeset.valid?,
+             {:ok, account} <- Repo.update(account_changeset) do
+          account
+        end
+      end)
+
+    with {:error, _} <- result do
+      {:error, :withdraw_not_allowed}
+    else
+      result -> result
+    end
+  end
 end

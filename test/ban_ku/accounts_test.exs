@@ -9,7 +9,7 @@ defmodule BanKu.AccountsTest do
     @owner_name_example "some owner name"
     @owner_name_example_updated "some updated owner name"
 
-    @valid_attrs %{balance: 42, owner_name: @owner_name_example}
+    @valid_attrs %{owner_name: @owner_name_example}
     @update_attrs %{balance: 43, owner_name: @owner_name_example_updated}
     @invalid_attrs %{balance: nil, owner_name: nil}
 
@@ -77,6 +77,31 @@ defmodule BanKu.AccountsTest do
       # should
       assert {:error, %Ecto.Changeset{}} = changeset_result
       assert account == Accounts.get_account!(account.id)
+    end
+
+    test "withdraw_from_account/2 with valid amount should return updated account" do
+      # given
+      account = account_fixture(%{balance: 100_000})
+      amount = 100
+
+      # when
+      result = Accounts.withdraw_from_account(account.id, amount)
+
+      # should
+      assert {:ok, account_result} = result
+      assert 99900 == account_result.balance
+    end
+
+    test "withdraw_from_account/2 with invalid amount should return error" do
+      # given
+      account = account_fixture(%{balance: 100_000})
+      amount = 100_001
+
+      # when
+      result = Accounts.withdraw_from_account(account.id, amount)
+
+      # should
+      assert {:error, :withdraw_not_allowed} = result
     end
   end
 end
