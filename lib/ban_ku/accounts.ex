@@ -120,21 +120,25 @@ defmodule BanKu.Accounts do
     do: {:error, :withdraw_not_allowed}
 
   def withdraw_from_account(acount_id, amount) do
-    result =
-      Repo.transaction(fn ->
-        with account when account != nil <- Repo.get(Account, acount_id),
-             remaining_balance <- account.balance - amount,
-             account_changeset <- Account.changeset(account, %{balance: remaining_balance}),
-             true <- account_changeset.valid?,
-             {:ok, account} <- Repo.update(account_changeset) do
-          account
-        end
-      end)
+    try do
+      result =
+        Repo.transaction(fn ->
+          with account when account != nil <- Repo.get(Account, acount_id),
+               remaining_balance <- account.balance - amount,
+               account_changeset <- Account.changeset(account, %{balance: remaining_balance}),
+               true <- account_changeset.valid?,
+               {:ok, account} <- Repo.update(account_changeset) do
+            account
+          end
+        end)
 
-    with {:error, _} <- result do
-      {:error, :withdraw_not_allowed}
-    else
-      result -> result
+      with {:error, _} <- result do
+        {:error, :withdraw_not_allowed}
+      else
+        result -> result
+      end
+    rescue
+      _ -> {:error, :withdraw_not_allowed}
     end
   end
 end

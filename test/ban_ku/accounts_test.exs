@@ -103,5 +103,17 @@ defmodule BanKu.AccountsTest do
       # should
       assert {:error, :withdraw_not_allowed} = result
     end
+
+    test "withdraw_from_account/2 with invalid account id should return error" do
+      # given
+      account_fixture(%{balance: 100_000})
+      amount = 100
+
+      # when
+      result = Accounts.withdraw_from_account("random string", amount)
+
+      # should
+      assert {:error, :withdraw_not_allowed} = result
+    end
   end
 end

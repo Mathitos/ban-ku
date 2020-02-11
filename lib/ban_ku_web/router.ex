@@ -12,12 +12,7 @@ defmodule BanKuWeb.Router do
     pipe_through(:api)
     pipe_through(:auth)
 
-    resources("/accounts", AccountController, only: [:index, :show])
-  end
-
-  scope "/api", BanKuWeb do
-    pipe_through(:api)
-
-    resources("/accounts", AccountController, only: [:create])
+    resources("/accounts", AccountController, only: [:create, :index, :show])
+    post("/withdraw", WithdrawController, :withdraw)
   end
 end
