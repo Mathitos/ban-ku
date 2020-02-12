@@ -9,6 +9,7 @@ defmodule BanKu.Accounts.Account do
   schema "accounts" do
     field :balance, :integer
     field :owner_name, :string
+    field :email, :string
 
     timestamps()
   end
@@ -16,8 +17,8 @@ defmodule BanKu.Accounts.Account do
   @doc false
   def changeset(account, attrs) do
     account
-    |> cast(attrs, [:owner_name, :balance])
-    |> validate_required([:owner_name, :balance])
+    |> cast(attrs, [:owner_name, :balance, :email])
+    |> validate_required([:owner_name, :balance, :email])
     |> check_constraint(:balance, name: :balance_must_not_be_negative)
   end
 
