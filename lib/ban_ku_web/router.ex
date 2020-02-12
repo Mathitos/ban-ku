@@ -8,11 +8,16 @@ defmodule BanKuWeb.Router do
   pipeline :auth do
   end
 
-  scope "/api", BanKuWeb do
+  scope "/api/v1", BanKuWeb do
     pipe_through(:api)
     pipe_through(:auth)
 
     resources("/accounts", AccountController, only: [:create, :index, :show])
     post("/withdraw", WithdrawController, :withdraw)
+  end
+
+  scope "/api/v1", BanKuWeb do
+    pipe_through(:api)
+    post "/sign_in", UserController, :sign_in
   end
 end

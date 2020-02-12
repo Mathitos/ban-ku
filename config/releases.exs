@@ -45,3 +45,13 @@ config :ban_ku, BanKu.Repo,
   ssl: true,
   url: database_url,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
+
+guardian_secret_key =
+  System.get_env("GUARDIAN_SECRET_KEY") ||
+    raise """
+    environment variable GUARDIAN_SECRET_KEY is missing.
+    """
+
+config :ban_ku, BanKuWeb.Guardian,
+  issuer: "BanKu",
+  secret_key: guardian_secret_key

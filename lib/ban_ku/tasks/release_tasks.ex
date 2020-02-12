@@ -10,7 +10,6 @@ defmodule(BanKu.Tasks.ReleaseTasks) do
 
   @seeds_file "seeds.exs"
 
-  alias Ecto.Adapters.Postgres
   alias Ecto.Migrator
   alias BanKu.Repo
   require Logger

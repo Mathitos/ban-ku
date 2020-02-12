@@ -4,7 +4,7 @@ defmodule BanKu.AccountsTest do
   alias BanKu.Accounts
 
   describe "accounts" do
-    alias BanKu.Accounts.Account
+    alias BanKu.Accounts.{Account, User}
 
     @owner_name_example "some owner name"
     @owner_name_example_updated "some updated owner name"
@@ -13,6 +13,11 @@ defmodule BanKu.AccountsTest do
     @update_attrs %{balance: 43, owner_name: @owner_name_example_updated}
     @invalid_attrs %{balance: nil, owner_name: nil}
 
+    @backoffice_attrs %{
+      email: "backoffice@banku.com",
+      password: "lalala"
+    }
+
     def account_fixture(attrs \\ %{}) do
       {:ok, account} =
         attrs
@@ -20,6 +25,12 @@ defmodule BanKu.AccountsTest do
         |> Accounts.create_account()
 
       account
+    end
+
+    def user_fixture(attrs \\ %{}) do
+      %User{}
+      |> User.changeset(attrs)
+      |> Repo.insert()
     end
 
     test "list_accounts/0 returns all accounts" do
@@ -114,6 +125,39 @@ defmodule BanKu.AccountsTest do
 
       # should
       assert {:error, :withdraw_not_allowed} = result
+    end
+
+    test "token_sign_in/2 with valid email and password should return :ok" do
+      # given
+      user_fixture(@backoffice_attrs)
+
+      # when
+      result = Accounts.token_sign_in(@backoffice_attrs.email, @backoffice_attrs.password)
+
+      # should
+      assert {:ok, _, _} = result
+    end
+
+    test "token_sign_in/2 with invalid email should return :error" do
+      # given
+      user_fixture(@backoffice_attrs)
+
+      # when
+      result = Accounts.token_sign_in("invalid@email.com", @backoffice_attrs.password)
+
+      # should
+      assert {:error, _} = result
+    end
+
+    test "token_sign_in/2 with valid email and invalid password should return :error" do
+      # given
+      user_fixture(@backoffice_attrs)
+
+      # when
+      result = Accounts.token_sign_in(@backoffice_attrs.email, "wrong password")
+
+      # should
+      assert {:error, _} = result
     end
   end
 end

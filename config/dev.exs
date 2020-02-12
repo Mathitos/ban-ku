@@ -55,3 +55,7 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+config :ban_ku, BanKuWeb.Guardian,
+  issuer: "BanKu",
+  secret_key: "iU98+1rOsBJHOifefqFsRG7YTJ2plgqGbQVX7pgY/tA4/IZj+SIsi70M8/gaHZFo"

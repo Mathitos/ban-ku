@@ -1,8 +1,7 @@
 defmodule BanKuWeb.WithdrawController do
   use BanKuWeb, :controller
   alias BanKu.Accounts
-  alias BanKuWeb.ErrorView
-  alias BanKuWeb.AccountView
+  alias BanKuWeb.{ErrorView, AccountView}
 
   def withdraw(conn, %{"account_id" => account_id, "amount" => amount})
       when is_binary(account_id) do

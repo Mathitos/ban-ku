@@ -5,8 +5,9 @@ defmodule BanKu.Accounts do
 
   import Ecto.Query, warn: false
   alias BanKu.Repo
-
-  alias BanKu.Accounts.Account
+  alias BanKuWeb.Guardian
+  alias BanKu.Accounts.{Account, User}
+  import Comeonin.Bcrypt, only: [checkpw: 2, dummy_checkpw: 0]
 
   @doc """
   Returns the list of accounts.
@@ -139,6 +140,68 @@ defmodule BanKu.Accounts do
       end
     rescue
       _ -> {:error, :withdraw_not_allowed}
+    end
+  end
+
+  @doc """
+  Gets a single user or nil it doesnt exists.
+
+  ## Examples
+
+      iex> get_user(123)
+      %Account{}
+
+      iex> get_user(456)
+      nil
+
+  """
+  def get_user(id), do: Repo.get(User, id)
+
+  defp get_user_by_email(email) when is_binary(email) do
+    case Repo.get_by(User, email: email) do
+      nil ->
+        dummy_checkpw()
+        {:error, :login_error}
+
+      user ->
+        {:ok, user}
+    end
+  end
+
+  defp verify_password(password, %User{} = user) when is_binary(password) do
+    if checkpw(password, user.password_hash) do
+      {:ok, user}
+    else
+      {:error, :invalid_password}
+    end
+  end
+
+  defp verify_password(_, _), do: {:error, :invalid_password}
+
+  defp user_auth(email, password) when is_binary(email) and is_binary(password) do
+    with {:ok, user} <- get_user_by_email(email),
+         do: verify_password(password, user)
+  end
+
+  @doc """
+  encode and signin, or return a error in case user dont exists or is wrong password
+
+  ## Examples
+
+      iex> token_sign_in(email, password)
+      {:ok, token, claims}
+
+      iex> token_sign_in(email, password)
+      {:error, :unauthorized}
+
+  """
+  def token_sign_in(email, password) do
+    case user_auth(email, password) do
+      {:ok, user} ->
+        Guardian.encode_and_sign(user)
+
+      _ ->
+        {:error, :unauthorized}
     end
   end
 end

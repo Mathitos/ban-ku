@@ -1,11 +1,17 @@
-# Script for populating the database. You can run it as:
-#
-#     mix run priv/repo/seeds.exs
-#
-# Inside the script, you can read and write to any of your
-# repositories directly:
-#
-#     BanKu.Repo.insert!(%BanKu.SomeSchema{})
-#
-# We recommend using the bang functions (`insert!`, `update!`
-# and so on) as they will fail if something goes wrong.
+defmodule Banku.Seeds do
+  alias BanKu.Accounts.User
+  alias BanKu.Repo
+
+  @backoffice_credentials %{
+    email: "backoffice@banku.com",
+    password: "lalala"
+  }
+
+  def run do
+    %User{}
+    |> User.changeset(@backoffice_credentials)
+    |> Repo.insert()
+  end
+end
+
+Banku.Seeds.run()

@@ -20,6 +20,7 @@ defmodule BanKuWeb.ConnCase do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
       alias BanKuWeb.Router.Helpers, as: Routes
+      alias BanKu.Repo
 
       # The default endpoint for testing
       @endpoint BanKuWeb.Endpoint

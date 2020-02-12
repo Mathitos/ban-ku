@@ -16,3 +16,7 @@ config :ban_ku, BanKuWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+config :ban_ku, BanKuWeb.Guardian,
+  issuer: "BanKu",
+  secret_key: "kLgBLxgjSVO6Gq8+U/xmpTZj3h52wxzyfMvwoDISF/KKYvu5W1vxRrzi4KoJbSO0"
