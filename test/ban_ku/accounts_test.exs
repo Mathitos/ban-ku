@@ -8,10 +8,16 @@ defmodule BanKu.AccountsTest do
 
     @owner_name_example "some owner name"
     @owner_name_example_updated "some updated owner name"
+    @owner_email_exaple "someemail@test.com"
+    @owner_email_example_updated "anotheremail@test.com"
 
-    @valid_attrs %{owner_name: @owner_name_example}
-    @update_attrs %{balance: 43, owner_name: @owner_name_example_updated}
-    @invalid_attrs %{balance: nil, owner_name: nil}
+    @valid_attrs %{owner_name: @owner_name_example, email: @owner_email_exaple}
+    @update_attrs %{
+      balance: 43,
+      owner_name: @owner_name_example_updated,
+      email: @owner_email_exaple_updated
+    }
+    @invalid_attrs %{balance: nil, owner_name: nil, email: nil}
 
     @backoffice_attrs %{
       email: "backoffice@test.com",

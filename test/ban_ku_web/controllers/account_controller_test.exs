@@ -2,6 +2,7 @@ defmodule BanKuWeb.AccountControllerTest do
   use BanKuWeb.ConnCase
 
   alias BanKu.Accounts
+  alias BanKuWeb.Guardian
 
   @create_attrs %{
     owner_name: "some owner_name",
@@ -15,8 +16,12 @@ defmodule BanKuWeb.AccountControllerTest do
   end
 
   setup %{conn: conn} do
-    {:ok, user} = Accounts.get_user_by_email("backoffice@banku.com")
-    {:ok, token, _claims} = Guardian.encode_and_sign(user)
+    {:ok, token, _claims} = Accounts.token_sign_in("backoffice@banku.com", "password")
+
+    conn =
+      conn
+      |> put_req_header("accept", "application/json")
+      |> put_req_header("authorization", "Bearer #{token}")
 
     {:ok, conn: conn}
   end

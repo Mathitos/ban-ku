@@ -4,7 +4,7 @@ defmodule Banku.Seeds do
 
   @backoffice_credentials %{
     email: "backoffice@banku.com",
-    password: "lalala"
+    password: "password"
   }
 
   def run do

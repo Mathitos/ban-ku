@@ -4,7 +4,14 @@ defmodule BanKuWeb.WithdrawControllerTest do
   alias BanKu.Accounts
 
   setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    {:ok, token, _claims} = Accounts.token_sign_in("backoffice@banku.com", "password")
+
+    conn =
+      conn
+      |> put_req_header("accept", "application/json")
+      |> put_req_header("authorization", "Bearer #{token}")
+
+    {:ok, conn: conn}
   end
 
   describe "withdraw" do
