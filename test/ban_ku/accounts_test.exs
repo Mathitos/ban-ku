@@ -14,7 +14,7 @@ defmodule BanKu.AccountsTest do
     @invalid_attrs %{balance: nil, owner_name: nil}
 
     @backoffice_attrs %{
-      email: "backoffice@banku.com",
+      email: "backoffice@test.com",
       password: "lalala"
     }
 

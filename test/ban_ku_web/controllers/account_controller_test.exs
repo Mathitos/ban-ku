@@ -4,9 +4,10 @@ defmodule BanKuWeb.AccountControllerTest do
   alias BanKu.Accounts
 
   @create_attrs %{
-    owner_name: "some owner_name"
+    owner_name: "some owner_name",
+    email: "owner_name@email.com"
   }
-  @invalid_attrs %{balance: nil, owner_name: nil}
+  @invalid_attrs %{balance: nil, owner_name: nil, email: nil}
 
   def fixture(:account) do
     {:ok, account} = Accounts.create_account(@create_attrs)
@@ -14,7 +15,10 @@ defmodule BanKuWeb.AccountControllerTest do
   end
 
   setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    {:ok, user} = Accounts.get_user_by_email("backoffice@banku.com")
+    {:ok, token, _claims} = Guardian.encode_and_sign(user)
+
+    {:ok, conn: conn}
   end
 
   describe "index" do

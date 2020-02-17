@@ -10,7 +10,9 @@ defmodule BanKuWeb.WithdrawControllerTest do
   describe "withdraw" do
     test "renders account when data is valid", %{conn: conn} do
       # given
-      {:ok, account} = Accounts.create_account(%{owner_name: "owner name example"})
+      {:ok, account} =
+        Accounts.create_account(%{owner_name: "owner name example", email: "owner_name@email.com"})
+
       account_id = account.id
 
       # when
@@ -24,7 +26,8 @@ defmodule BanKuWeb.WithdrawControllerTest do
       assert %{
                "id" => account_id,
                "balance" => 99_900,
-               "owner_name" => "owner name example"
+               "owner_name" => "owner name example",
+               email: "owner_name@email.com"
              } = json_response(conn, 200)["data"]
     end
 
@@ -50,7 +53,9 @@ defmodule BanKuWeb.WithdrawControllerTest do
 
     test "renders errors when amount is invalid", %{conn: conn} do
       # given
-      {:ok, account} = Accounts.create_account(%{owner_name: "owner name example"})
+      {:ok, account} =
+        Accounts.create_account(%{owner_name: "owner name example", email: "owner_name@email.com"})
+
       account_id = account.id
 
       # when

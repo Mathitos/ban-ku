@@ -11,8 +11,11 @@ defmodule BanKuWeb.AccountView do
   end
 
   def render("account.json", %{account: account}) do
-    %{id: account.id,
+    %{
+      id: account.id,
       owner_name: account.owner_name,
-      balance: account.balance}
+      email: account.email,
+      balance: account.balance
+    }
   end
 end

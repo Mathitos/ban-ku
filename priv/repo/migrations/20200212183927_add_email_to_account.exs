@@ -3,7 +3,7 @@ defmodule BanKu.Repo.Migrations.AddEmailToAccount do
 
   def change do
     alter table(:accounts) do
-      add :email, :string
+      add :email, :string, unique: true
     end
   end
 end

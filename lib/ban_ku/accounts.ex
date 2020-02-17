@@ -120,26 +120,23 @@ defmodule BanKu.Accounts do
   def withdraw_from_account(_, amount) when amount <= 0,
     do: {:error, :withdraw_not_allowed}
 
-  def withdraw_from_account(acount_id, amount) do
-    try do
-      result =
-        Repo.transaction(fn ->
-          with account when account != nil <- Repo.get(Account, acount_id),
-               remaining_balance <- account.balance - amount,
-               account_changeset <- Account.changeset(account, %{balance: remaining_balance}),
-               true <- account_changeset.valid?,
-               {:ok, account} <- Repo.update(account_changeset) do
-            account
-          end
-        end)
+  def withdraw_from_account(acount_id, amount) when is_number(amount) do
+    result =
+      Repo.transaction(fn ->
+        with {:ok, id} <- Ecto.UUID.cast(acount_id),
+             account when account != nil <- Repo.get(Account, id),
+             remaining_balance <- account.balance - amount,
+             account_changeset <- Account.changeset(account, %{balance: remaining_balance}),
+             true <- account_changeset.valid?,
+             {:ok, account} <- Repo.update(account_changeset) do
+          account
+        end
+      end)
 
-      with {:error, _} <- result do
-        {:error, :withdraw_not_allowed}
-      else
-        result -> result
-      end
-    rescue
-      _ -> {:error, :withdraw_not_allowed}
+    with {:error, _} <- result do
+      {:error, :withdraw_not_allowed}
+    else
+      result -> result
     end
   end
 

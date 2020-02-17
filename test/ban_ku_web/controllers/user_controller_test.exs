@@ -4,7 +4,7 @@ defmodule BanKuWeb.UserControllerTest do
   alias BanKu.Accounts.User
 
   @backoffice_attrs %{
-    email: "backoffice@banku.com",
+    email: "backoffice@test.com",
     password: "lalala"
   }
 
