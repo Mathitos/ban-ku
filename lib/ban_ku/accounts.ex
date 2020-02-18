@@ -117,10 +117,7 @@ defmodule BanKu.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  def withdraw_from_account(_, amount) when amount <= 0,
-    do: {:error, :withdraw_not_allowed}
-
-  def withdraw_from_account(acount_id, amount) when is_number(amount) do
+  def withdraw_from_account(acount_id, amount) when is_number(amount) and amount > 0 do
     result =
       Repo.transaction(fn ->
         with {:ok, id} <- Ecto.UUID.cast(acount_id),
@@ -130,15 +127,19 @@ defmodule BanKu.Accounts do
              true <- account_changeset.valid?,
              {:ok, account} <- Repo.update(account_changeset) do
           account
+        else
+          err -> Repo.rollback(err)
         end
       end)
 
-    with {:error, _} <- result do
-      {:error, :withdraw_not_allowed}
-    else
-      result -> result
+    case result do
+      {:error, _} -> {:error, :withdraw_not_allowed}
+      _ -> result
     end
   end
+
+  def withdraw_from_account(_, _),
+    do: {:error, :withdraw_not_allowed}
 
   @doc """
   Gets a single user or nil it doesnt exists.

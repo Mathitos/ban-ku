@@ -3,8 +3,7 @@ defmodule BanKuWeb.WithdrawController do
   alias BanKu.Accounts
   alias BanKuWeb.{ErrorView, AccountView}
 
-  def withdraw(conn, %{"account_id" => account_id, "amount" => amount})
-      when is_binary(account_id) do
+  def withdraw(conn, %{"account_id" => account_id, "amount" => amount}) do
     case Accounts.withdraw_from_account(account_id, amount) do
       {:ok, account} ->
         conn
