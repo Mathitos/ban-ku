@@ -2,7 +2,6 @@ defmodule BanKuWeb.AccountControllerTest do
   use BanKuWeb.ConnCase
 
   alias BanKu.Accounts
-  alias BanKuWeb.Guardian
 
   @create_attrs %{
     owner_name: "some owner_name",

@@ -8,14 +8,14 @@ defmodule BanKu.AccountsTest do
 
     @owner_name_example "some owner name"
     @owner_name_example_updated "some updated owner name"
-    @owner_email_exaple "someemail@test.com"
+    @owner_email_example "someemail@test.com"
     @owner_email_example_updated "anotheremail@test.com"
 
-    @valid_attrs %{owner_name: @owner_name_example, email: @owner_email_exaple}
+    @valid_attrs %{owner_name: @owner_name_example, email: @owner_email_example}
     @update_attrs %{
       balance: 43,
       owner_name: @owner_name_example_updated,
-      email: @owner_email_exaple_updated
+      email: @owner_email_example_updated
     }
     @invalid_attrs %{balance: nil, owner_name: nil, email: nil}
 
@@ -64,6 +64,21 @@ defmodule BanKu.AccountsTest do
       assert {:ok, %Account{} = account} = Accounts.update_account(account, @update_attrs)
       assert account.balance == 43
       assert account.owner_name == @owner_name_example_updated
+      assert account.email == @owner_email_example_updated
+    end
+
+    test "update_account/2 with valid partial data updates partially the account" do
+      account = account_fixture()
+
+      assert {:ok, %Account{} = account} =
+               Accounts.update_account(account, %{
+                 balance: 43,
+                 owner_name: @owner_name_example_updated
+               })
+
+      assert account.balance == 43
+      assert account.owner_name == @owner_name_example_updated
+      assert account.email == @owner_email_example
     end
 
     test "update_account/2 with invalid data returns error changeset" do

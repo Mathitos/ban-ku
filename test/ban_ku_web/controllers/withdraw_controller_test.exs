@@ -34,7 +34,7 @@ defmodule BanKuWeb.WithdrawControllerTest do
                "id" => account_id,
                "balance" => 99_900,
                "owner_name" => "owner name example",
-               email: "owner_name@email.com"
+               "email" => "owner_name@email.com"
              } = json_response(conn, 200)["data"]
     end
 
