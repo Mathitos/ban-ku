@@ -11,9 +11,9 @@ defmodule BanKuWeb.AccountController do
     render(conn, "index.json", accounts: accounts)
   end
 
-  def create(conn, %{"owner_name" => owner_name, "email" => email}) do
+  def create(conn, params) do
     with {:ok, %Account{} = account} <-
-           Accounts.create_account(%{owner_name: owner_name, email: email}) do
+           Accounts.create_account(%{owner_name: params["owner_name"], email: params["email"]}) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.account_path(conn, :show, account))

@@ -18,6 +18,7 @@ defmodule BanKu.Accounts.Account do
   def changeset(account, attrs) do
     account
     |> cast(attrs, [:owner_name, :balance, :email])
+    |> unique_constraint(:email)
     |> validate_required([:owner_name, :balance, :email])
     |> check_constraint(:balance, name: :balance_must_not_be_negative)
   end
