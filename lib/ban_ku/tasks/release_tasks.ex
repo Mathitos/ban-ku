@@ -1,4 +1,8 @@
 defmodule(BanKu.Tasks.ReleaseTasks) do
+  @moduledoc """
+  Tasks to be run during release on runtime
+  """
+
   @start_apps [
     :ssl,
     :postgrex,
@@ -10,8 +14,8 @@ defmodule(BanKu.Tasks.ReleaseTasks) do
 
   @seeds_file "seeds.exs"
 
-  alias Ecto.Migrator
   alias BanKu.Repo
+  alias Ecto.Migrator
   require Logger
 
   def setup(_opts \\ []) do

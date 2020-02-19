@@ -1,4 +1,8 @@
 defmodule BanKuWeb.Guardian do
+  @moduledoc """
+  Guardian implementation for BanKu project
+  """
+
   use Guardian, otp_app: :ban_ku
 
   alias BanKu.Accounts

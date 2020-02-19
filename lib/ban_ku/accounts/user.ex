@@ -1,4 +1,8 @@
 defmodule BanKu.Accounts.User do
+  @moduledoc """
+  User Schema
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
   import Comeonin.Bcrypt, only: [hashpwsalt: 1]

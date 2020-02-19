@@ -1,4 +1,8 @@
 defmodule BanKu.Accounts.Account do
+  @moduledoc """
+  Account Schema
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -23,7 +27,7 @@ defmodule BanKu.Accounts.Account do
     |> check_constraint(:balance, name: :balance_must_not_be_negative)
   end
 
-  def get_initial_value() do
+  def get_initial_value do
     @initial_balance
   end
 end

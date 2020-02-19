@@ -1,4 +1,8 @@
 defmodule BanKu.Reports.Transaction do
+  @moduledoc """
+  Transaction Schema
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
 

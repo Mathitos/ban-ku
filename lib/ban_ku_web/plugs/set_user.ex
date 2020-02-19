@@ -1,4 +1,8 @@
 defmodule BanKuWeb.Plugs.SetUserPlug do
+  @moduledoc """
+  Plug to add user in connection assigns
+  """
+
   import Plug.Conn
 
   def init(_params), do: nil

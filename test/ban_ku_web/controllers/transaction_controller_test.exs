@@ -1,7 +1,7 @@
 defmodule BanKuWeb.TransactionControllerTest do
   use BanKuWeb.ConnCase
 
-  alias BanKu.{Reports, Accounts}
+  alias BanKu.{Accounts, Reports}
 
   @create_attrs %{
     account_dest_id: "some account_dest_id",

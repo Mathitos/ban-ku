@@ -1,3 +1,5 @@
+# credo:disable-for-this-file
+
 defmodule BanKuWeb.ChannelCase do
   @moduledoc """
   This module defines the test case to be used by

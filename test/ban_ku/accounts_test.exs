@@ -125,7 +125,7 @@ defmodule BanKu.AccountsTest do
 
       # should
       assert {:ok, account_result} = result
-      assert 99900 == account_result.balance
+      assert 99_900 == account_result.balance
     end
 
     test "withdraw_from_account/2 with invalid amount should return error" do

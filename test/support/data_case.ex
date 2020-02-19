@@ -1,3 +1,5 @@
+# credo:disable-for-this-file
+
 defmodule BanKu.DataCase do
   @moduledoc """
   This module defines the setup for tests requiring

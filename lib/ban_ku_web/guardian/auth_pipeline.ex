@@ -1,4 +1,8 @@
 defmodule BanKuWeb.Guardian.AuthPipeline do
+  @moduledoc """
+  module to define the auth pipeline
+  """
+
   use Guardian.Plug.Pipeline,
     otp_app: :ban_ku,
     module: BanKuWeb.Guardian,
