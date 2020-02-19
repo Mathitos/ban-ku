@@ -6,4 +6,6 @@ defmodule BanKuWeb.Guardian.AuthPipeline do
 
   plug Guardian.Plug.VerifyHeader
   plug Guardian.Plug.EnsureAuthenticated
+  plug Guardian.Plug.LoadResource
+  plug BanKuWeb.Plugs.SetUserPlug
 end
