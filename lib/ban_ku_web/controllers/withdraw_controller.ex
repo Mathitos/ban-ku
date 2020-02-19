@@ -4,7 +4,9 @@ defmodule BanKuWeb.WithdrawController do
   alias BanKuWeb.{ErrorView, AccountView}
 
   def withdraw(conn, %{"account_id" => account_id, "amount" => amount}) do
-    case Accounts.withdraw_from_account(account_id, amount) do
+    user = conn.assigns.user
+
+    case Accounts.withdraw_from_account(user.id, account_id, amount) do
       {:ok, account} ->
         conn
         |> put_view(AccountView)

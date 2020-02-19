@@ -7,6 +7,7 @@ defmodule BanKu.Accounts do
   alias BanKu.Repo
   alias BanKuWeb.Guardian
   alias BanKu.Accounts.{Account, User}
+  alias BanKu.Reports.Transaction
   import Comeonin.Bcrypt, only: [checkpw: 2, dummy_checkpw: 0]
 
   @doc """
@@ -110,14 +111,14 @@ defmodule BanKu.Accounts do
 
   ## Examples
 
-      iex> withdraw_from_account(account_id, amount)
+      iex> withdraw_from_account(operator_id, account_id, amount)
       {:ok, %Account{}}
 
-      iex> withdraw_from_account(account_id, invalid_amount})
+      iex> withdraw_from_account(operator_id, account_id, invalid_amount})
       {:error, %Ecto.Changeset{}}
 
   """
-  def withdraw_from_account(acount_id, amount) do
+  def withdraw_from_account(operator_id, acount_id, amount) do
     Ecto.Multi.new()
     |> Ecto.Multi.run(:id, fn _repo, _changes -> validate_uuid(acount_id) end)
     |> Ecto.Multi.run(:account, fn repo, %{id: id} -> get_account(repo, id) end)
@@ -127,6 +128,16 @@ defmodule BanKu.Accounts do
     |> Ecto.Multi.run(:account_updated, fn repo, %{withdraw_changeset: withdraw_changeset} ->
       repo.update(withdraw_changeset)
     end)
+    |> Ecto.Multi.insert(
+      :transaction,
+      %Transaction{
+        account_origin_id: acount_id,
+        account_dest_id: nil,
+        amount: -amount,
+        date: DateTime.utc_now() |> DateTime.truncate(:second),
+        operator_id: operator_id
+      }
+    )
     |> Repo.transaction()
     |> case do
       {:ok, %{account_updated: account_updated}} -> {:ok, account_updated}

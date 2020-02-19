@@ -33,10 +33,13 @@ defmodule BanKu.AccountsTest do
       account
     end
 
-    def user_fixture(attrs \\ %{}) do
-      %User{}
-      |> User.changeset(attrs)
-      |> Repo.insert()
+    def user_fixture(attrs \\ @backoffice_attrs) do
+      {:ok, user} =
+        %User{}
+        |> User.changeset(attrs)
+        |> Repo.insert()
+
+      user
     end
 
     test "list_accounts/0 returns all accounts" do
@@ -114,10 +117,11 @@ defmodule BanKu.AccountsTest do
     test "withdraw_from_account/2 with valid amount should return updated account" do
       # given
       account = account_fixture(%{balance: 100_000})
+      user = user_fixture()
       amount = 100
 
       # when
-      result = Accounts.withdraw_from_account(account.id, amount)
+      result = Accounts.withdraw_from_account(user.id, account.id, amount)
 
       # should
       assert {:ok, account_result} = result
@@ -127,10 +131,11 @@ defmodule BanKu.AccountsTest do
     test "withdraw_from_account/2 with invalid amount should return error" do
       # given
       account = account_fixture(%{balance: 100_000})
+      user = user_fixture()
       amount = 100_001
 
       # when
-      result = Accounts.withdraw_from_account(account.id, amount)
+      result = Accounts.withdraw_from_account(user.id, account.id, amount)
 
       # should
       assert {:error, :withdraw_not_allowed} = result
@@ -139,10 +144,11 @@ defmodule BanKu.AccountsTest do
     test "withdraw_from_account/2 with invalid account id should return error" do
       # given
       account_fixture(%{balance: 100_000})
+      user = user_fixture()
       amount = 100
 
       # when
-      result = Accounts.withdraw_from_account("random string", amount)
+      result = Accounts.withdraw_from_account(user.id, "random string", amount)
 
       # should
       assert {:error, :withdraw_not_allowed} = result

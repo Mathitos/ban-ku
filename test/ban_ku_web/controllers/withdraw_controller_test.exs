@@ -20,12 +20,10 @@ defmodule BanKuWeb.WithdrawControllerTest do
       {:ok, account} =
         Accounts.create_account(%{owner_name: "owner name example", email: "owner_name@email.com"})
 
-      account_id = account.id
-
       # when
       conn =
         post(conn, Routes.withdraw_path(conn, :withdraw), %{
-          "account_id" => account_id,
+          "account_id" => account.id,
           "amount" => 100
         })
 
