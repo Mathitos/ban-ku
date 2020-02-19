@@ -117,29 +117,44 @@ defmodule BanKu.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  def withdraw_from_account(acount_id, amount) when is_number(amount) and amount > 0 do
-    result =
-      Repo.transaction(fn ->
-        with {:ok, id} <- Ecto.UUID.cast(acount_id),
-             account when account != nil <- Repo.get(Account, id),
-             remaining_balance <- account.balance - amount,
-             account_changeset <- Account.changeset(account, %{balance: remaining_balance}),
-             true <- account_changeset.valid?,
-             {:ok, account} <- Repo.update(account_changeset) do
-          account
-        else
-          err -> Repo.rollback(err)
-        end
-      end)
-
-    case result do
-      {:error, _} -> {:error, :withdraw_not_allowed}
-      _ -> result
+  def withdraw_from_account(acount_id, amount) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.run(:id, fn _repo, _changes -> validate_uuid(acount_id) end)
+    |> Ecto.Multi.run(:account, fn repo, %{id: id} -> get_account(repo, id) end)
+    |> Ecto.Multi.run(:withdraw_changeset, fn _repo, %{account: account} ->
+      withdraw_changeset(account, amount)
+    end)
+    |> Ecto.Multi.run(:account_updated, fn repo, %{withdraw_changeset: withdraw_changeset} ->
+      repo.update(withdraw_changeset)
+    end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{account_updated: account_updated}} -> {:ok, account_updated}
+      _ -> {:error, :withdraw_not_allowed}
     end
   end
 
-  def withdraw_from_account(_, _),
-    do: {:error, :withdraw_not_allowed}
+  defp validate_uuid(uuid) do
+    case Ecto.UUID.cast(uuid) do
+      {:ok, id} -> {:ok, id}
+      err -> {:error, err}
+    end
+  end
+
+  defp get_account(repo, id) do
+    case repo.get(Account, id) do
+      nil -> {:error, :not_found}
+      account -> {:ok, account}
+    end
+  end
+
+  defp withdraw_changeset(account, amount) when is_number(amount) and amount > 0 do
+    remaining_balance = account.balance - amount
+    {:ok, Account.changeset(account, %{balance: remaining_balance})}
+  end
+
+  defp withdraw_changeset(_, _),
+    do: {:error, :invalid_amount}
 
   @doc """
   Gets a single user or nil it doesnt exists.
