@@ -11,14 +11,64 @@ defmodule BanKu.Reports do
   @doc """
   Returns the list of transactions.
 
+  it accepts aditional params to limit the transaction date
+
   ## Examples
 
       iex> list_transactions()
       [%Transaction{}, ...]
 
+      iex> list_transactions(:year)
+      [%Transaction{}, ...]
+
   """
   def list_transactions do
     Repo.all(Transaction)
+  end
+
+  def list_transactions(:year) do
+    {:ok, start_of_year} =
+      %{Date.utc_today() | day: 1, month: 1}
+      |> NaiveDateTime.new(~T[00:00:00])
+      |> elem(1)
+      |> DateTime.from_naive("Etc/UTC")
+
+    transactions =
+      Transaction
+      |> where([t], t.date > ^start_of_year)
+      |> Repo.all()
+
+    transactions
+  end
+
+  def list_transactions(:month) do
+    {:ok, start_of_month} =
+      %{Date.utc_today() | day: 1}
+      |> NaiveDateTime.new(~T[00:00:00])
+      |> elem(1)
+      |> DateTime.from_naive("Etc/UTC")
+
+    transactions =
+      Transaction
+      |> where([t], t.date > ^start_of_month)
+      |> Repo.all()
+
+    transactions
+  end
+
+  def list_transactions(:day) do
+    {:ok, start_of_day} =
+      Date.utc_today()
+      |> NaiveDateTime.new(~T[00:00:00])
+      |> elem(1)
+      |> DateTime.from_naive("Etc/UTC")
+
+    transactions =
+      Transaction
+      |> where([t], t.date > ^start_of_day)
+      |> Repo.all()
+
+    transactions
   end
 
   @doc """
@@ -55,50 +105,22 @@ defmodule BanKu.Reports do
     |> Repo.insert()
   end
 
-  @doc """
-  Updates a transaction.
-
-  ## Examples
-
-      iex> update_transaction(transaction, %{field: new_value})
-      {:ok, %Transaction{}}
-
-      iex> update_transaction(transaction, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_transaction(%Transaction{} = transaction, attrs) do
-    transaction
-    |> Transaction.changeset(attrs)
-    |> Repo.update()
+  def gen_report() do
+    %{
+      total: get_transactions_amount(:total),
+      year: get_transactions_amount(:year),
+      month: get_transactions_amount(:month),
+      day: get_transactions_amount(:day)
+    }
   end
 
-  @doc """
-  Deletes a transaction.
-
-  ## Examples
-
-      iex> delete_transaction(transaction)
-      {:ok, %Transaction{}}
-
-      iex> delete_transaction(transaction)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_transaction(%Transaction{} = transaction) do
-    Repo.delete(transaction)
+  defp get_transactions_amount(:total) do
+    list_transactions()
+    |> Enum.reduce(0, fn trans, total -> total + abs(trans.amount) end)
   end
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking transaction changes.
-
-  ## Examples
-
-      iex> change_transaction(transaction)
-      %Ecto.Changeset{source: %Transaction{}}
-
-  """
-  def change_transaction(%Transaction{} = transaction) do
-    Transaction.changeset(transaction, %{})
+  defp get_transactions_amount(interval) do
+    list_transactions(interval)
+    |> Enum.reduce(0, fn trans, total -> total + abs(trans.amount) end)
   end
 end

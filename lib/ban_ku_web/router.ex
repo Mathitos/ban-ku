@@ -17,6 +17,7 @@ defmodule BanKuWeb.Router do
     resources("/accounts", AccountController, only: [:create, :index, :show])
     post("/withdraw", WithdrawController, :withdraw)
     get("/transactions", TransactionController, :index)
+    get("/report", TransactionController, :report)
   end
 
   scope "/api/v1", BanKuWeb do

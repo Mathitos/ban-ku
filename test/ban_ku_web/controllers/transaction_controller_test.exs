@@ -11,8 +11,12 @@ defmodule BanKuWeb.TransactionControllerTest do
     operator_id: "some operator_id"
   }
 
-  def fixture(:transaction) do
-    {:ok, transaction} = Reports.create_transaction(@create_attrs)
+  def transaction_fixture(attrs \\ %{}) do
+    {:ok, transaction} =
+      attrs
+      |> Enum.into(@create_attrs)
+      |> Reports.create_transaction()
+
     transaction
   end
 
@@ -30,7 +34,7 @@ defmodule BanKuWeb.TransactionControllerTest do
   describe "index" do
     test "lists all transactions", %{conn: conn} do
       # given
-      transaction = fixture(:transaction)
+      transaction = transaction_fixture()
 
       # when
       conn = get(conn, Routes.transaction_path(conn, :index))
@@ -38,6 +42,41 @@ defmodule BanKuWeb.TransactionControllerTest do
       # should
       assert length(json_response(conn, 200)["data"]) == 1
       assert Enum.at(json_response(conn, 200)["data"], 0)["id"] == transaction.id
+    end
+  end
+
+  describe "reports" do
+    test "generate report with all fields", %{conn: conn} do
+      # given
+      today = DateTime.utc_now()
+
+      transaction_fixture(%{date: %{DateTime.utc_now() | year: 2_019}, amount: 1_000})
+
+      transaction_fixture(%{
+        date: DateTime.add(today, -24 * 3_600, :second),
+        amount: -50
+      })
+
+      transaction_fixture(%{
+        date: DateTime.add(today, -31 * 24 * 3_600, :second),
+        amount: 10
+      })
+
+      transaction_fixture(%{
+        date: today,
+        amount: -1
+      })
+
+      # when
+      conn = get(conn, Routes.transaction_path(conn, :report))
+
+      # should
+      assert json_response(conn, 200) == %{
+               "total" => 1_061,
+               "year" => 61,
+               "month" => 51,
+               "day" => 1
+             }
     end
   end
 end
