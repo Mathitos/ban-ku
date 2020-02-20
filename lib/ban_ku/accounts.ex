@@ -115,25 +115,23 @@ defmodule BanKu.Accounts do
       {:ok, %Account{}}
 
       iex> withdraw_from_account(operator_id, account_id, invalid_amount})
-      {:error, %Ecto.Changeset{}}
+      {:error, :withdraw_not_allowed}
 
   """
-  def withdraw_from_account(operator_id, acount_id, amount) do
+  def withdraw_from_account(operator_id, acount_id, amount)
+      when is_number(amount) and amount > 0 do
     Ecto.Multi.new()
     |> Ecto.Multi.run(:id, fn _repo, _changes -> validate_uuid(acount_id) end)
     |> Ecto.Multi.run(:account, fn repo, %{id: id} -> get_account(repo, id) end)
-    |> Ecto.Multi.run(:withdraw_changeset, fn _repo, %{account: account} ->
-      withdraw_changeset(account, amount)
-    end)
-    |> Ecto.Multi.run(:account_updated, fn repo, %{withdraw_changeset: withdraw_changeset} ->
-      repo.update(withdraw_changeset)
+    |> Ecto.Multi.update(:account_updated, fn %{account: account} ->
+      Account.changeset(account, %{balance: account.balance - amount})
     end)
     |> Ecto.Multi.insert(
       :transaction,
       %Transaction{
         account_origin_id: acount_id,
         account_dest_id: nil,
-        amount: -amount,
+        amount: amount,
         date: DateTime.utc_now() |> DateTime.truncate(:second),
         operator_id: operator_id
       }
@@ -144,6 +142,9 @@ defmodule BanKu.Accounts do
       _ -> {:error, :withdraw_not_allowed}
     end
   end
+
+  def withdraw_from_account(_, _, _),
+    do: {:error, :withdraw_not_allowed}
 
   defp validate_uuid(uuid) do
     case Ecto.UUID.cast(uuid) do
@@ -159,13 +160,54 @@ defmodule BanKu.Accounts do
     end
   end
 
-  defp withdraw_changeset(account, amount) when is_number(amount) and amount > 0 do
-    remaining_balance = account.balance - amount
-    {:ok, Account.changeset(account, %{balance: remaining_balance})}
+  @doc """
+  Transfer money betweens accounts.
+
+  ## Examples
+
+      iex> transfer_from_accounts(operator_id, origin_id, dest_id, amount)
+      {:ok, %Transaction{}}
+
+      iex> transfer_from_accounts(operator_id, origin_id, dest_id, amount)
+      {:error, :transfer_not_allowed}
+
+  """
+  def transfer_from_accounts(operator_id, origin_id, dest_id, amount)
+      when is_number(amount) and amount > 0 do
+    Ecto.Multi.new()
+    |> Ecto.Multi.run(:origin_id_validated, fn _repo, _changes -> validate_uuid(origin_id) end)
+    |> Ecto.Multi.run(:dest_id_validated, fn _repo, _changes -> validate_uuid(dest_id) end)
+    |> Ecto.Multi.run(:origin_account, fn repo, %{origin_id_validated: id} ->
+      get_account(repo, id)
+    end)
+    |> Ecto.Multi.run(:dest_account, fn repo, %{dest_id_validated: id} ->
+      get_account(repo, id)
+    end)
+    |> Ecto.Multi.update(:origin_account_updated, fn %{origin_account: account} ->
+      Account.changeset(account, %{balance: account.balance - amount})
+    end)
+    |> Ecto.Multi.update(:dest_account_updated, fn %{dest_account: account} ->
+      Account.changeset(account, %{balance: account.balance + amount})
+    end)
+    |> Ecto.Multi.insert(
+      :transaction,
+      %Transaction{
+        account_origin_id: origin_id,
+        account_dest_id: dest_id,
+        amount: amount,
+        date: DateTime.utc_now() |> DateTime.truncate(:second),
+        operator_id: operator_id
+      }
+    )
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{transaction: transaction}} -> {:ok, transaction}
+      _ -> {:error, :transfer_not_allowed}
+    end
   end
 
-  defp withdraw_changeset(_, _),
-    do: {:error, :invalid_amount}
+  def transfer_from_accounts(_, _, _, _),
+    do: {:error, :transfer_not_allowed}
 
   @doc """
   Gets a single user or nil it doesnt exists.

@@ -114,7 +114,7 @@ defmodule BanKu.AccountsTest do
       assert account == Accounts.get_account!(account.id)
     end
 
-    test "withdraw_from_account/2 with valid amount should return updated account" do
+    test "withdraw_from_account/3 with valid amount should return updated account" do
       # given
       account = account_fixture(%{balance: 100_000})
       user = user_fixture()
@@ -128,7 +128,7 @@ defmodule BanKu.AccountsTest do
       assert 99_900 == account_result.balance
     end
 
-    test "withdraw_from_account/2 with invalid amount should return error" do
+    test "withdraw_from_account/3 with invalid amount should return error" do
       # given
       account = account_fixture(%{balance: 100_000})
       user = user_fixture()
@@ -141,7 +141,7 @@ defmodule BanKu.AccountsTest do
       assert {:error, :withdraw_not_allowed} = result
     end
 
-    test "withdraw_from_account/2 with invalid account id should return error" do
+    test "withdraw_from_account/3 with invalid account id should return error" do
       # given
       account_fixture(%{balance: 100_000})
       user = user_fixture()
@@ -152,6 +152,52 @@ defmodule BanKu.AccountsTest do
 
       # should
       assert {:error, :withdraw_not_allowed} = result
+    end
+
+    test "transfer_from_accounts/4 with valid amount should return the transaction" do
+      # given
+      account_origin = account_fixture(%{balance: 100_000})
+      account_dest = account_fixture(%{balance: 100_000, email: "another@user.com"})
+      user = user_fixture()
+      amount = 100
+
+      # when
+      result =
+        Accounts.transfer_from_accounts(user.id, account_origin.id, account_dest.id, amount)
+
+      # should
+      assert {:ok, _} = result
+      assert 99_900 == Accounts.get_account!(account_origin.id).balance
+      assert 100_100 == Accounts.get_account!(account_dest.id).balance
+    end
+
+    test "transfer_from_accounts/4 with invalid amount should return error" do
+      # given
+      account_origin = account_fixture(%{balance: 100_000})
+      account_dest = account_fixture(%{balance: 100_000, email: "another@user.com"})
+      user = user_fixture()
+      amount = -100
+
+      # when
+      result =
+        Accounts.transfer_from_accounts(user.id, account_origin.id, account_dest.id, amount)
+
+      # should
+      assert {:error, :transfer_not_allowed} = result
+    end
+
+    test "transfer_from_accounts/4 with invalid account id should return error" do
+      # given
+      account_origin = account_fixture(%{balance: 100_000})
+      user = user_fixture()
+      amount = 100
+
+      # when
+      result =
+        Accounts.transfer_from_accounts(user.id, account_origin.id, "someRandString", amount)
+
+      # should
+      assert {:error, :transfer_not_allowed} = result
     end
 
     test "token_sign_in/2 with valid email and password should return :ok" do
