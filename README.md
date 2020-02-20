@@ -10,6 +10,7 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 ## To call deployed server on heroku
 [`https://ban-ku.herokuapp.com`](https://ban-ku.herokuapp.com)
+(due to free tier some dynamos may take a white to awake)
 
 ## Disponible routes
 [see complete documentation](routes.md)
