@@ -2,6 +2,11 @@ ARG ALPINE_VERSION=3.9
 
 FROM elixir:1.9.0-alpine as builder
 
+RUN apk update &&\
+  apk add make && \
+  apk add build-base
+
+
 RUN mkdir /app
 WORKDIR /app
 
