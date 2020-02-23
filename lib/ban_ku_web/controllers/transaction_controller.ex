@@ -2,7 +2,6 @@ defmodule BanKuWeb.TransactionController do
   use BanKuWeb, :controller
 
   alias BanKu.Reports
-  alias BanKu.Reports.Transaction
 
   action_fallback BanKuWeb.FallbackController
 
